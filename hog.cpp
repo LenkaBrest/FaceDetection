@@ -2,21 +2,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
-#include "opencv\cv.h"
-#include <opencv\highgui.h>
+#include <opencv2/opencv.hpp> 
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "opencv2\objdetect.hpp"
-#include <opencv2\core\core.hpp>
-#include <opencv2\photo.hpp>
+#include "opencv2/objdetect.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/photo.hpp>
 #include "opencv2/ml.hpp"
 #include <ctype.h>
 #include <math.h>
-#include <windows.h>
+//#include <windows.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include<io.h>
+//#include<io.h>
 #include <fstream>
 
 using namespace std;
@@ -34,15 +33,15 @@ int main(int argc, const char* argv[])
 	cin >> pathData;
 
 	//Positive image count
-	posCount = 166;
+	posCount = 167;
 	//Negative image count
-	negCount = 166;
+	negCount = 167;
 
 	for(int i=1; i < posCount; ++i)
 	{
 		stringstream filePathName;
-		filePathName << pathData << "\\"<< "pveimages" << "\\" << i << ".png";
-		//cout << filePathName.str() << endl;
+		filePathName << pathData << "/"<< "pveimages" << "/" << i << ".png";
+		cout << filePathName.str() << endl;
 		Mat img = imread(filePathName.str(),0);
 		if (img.empty())
 		{ 
@@ -54,12 +53,14 @@ int main(int argc, const char* argv[])
 
 		img_pos_lst.push_back(img.clone());
 	}
+	
+	cout<<"Get out"<<endl;
 
 	for (int i = 1; i < negCount; ++i)
 	{
 		stringstream filePathName;
-		filePathName << pathData << "\\" << "nveimages" << "\\" << "TrainNeg" <<" ("<<i<<")"<< ".png";
-		//cout << filePathName.str() << endl;
+		filePathName << pathData << "/" << "nveimages" << "/" << "TrainNeg" <<" ("<<i<<")"<< ".png";
+		cout << filePathName.str() << endl;
 		Mat img = imread(filePathName.str(), 0);
 		if (img.empty())
 		{
@@ -72,12 +73,15 @@ int main(int argc, const char* argv[])
 		img_neg_list.push_back(img.clone());
 	}
 
-	Mat img;
+	cout<<"Get out of TrainNeg"<<endl;
+	
+	//Mat img;
 	//img = imread("Lenna.png");
 	//cvtColor(img, img, CV_RGB2GRAY);
 	/*resize(img,img,Size(50,50));*/
 
 	HOGDescriptor hog;
+	cout<<"HOGDescriptor"<<endl;
 	Mat gradMat, trainingDataMat, labelsMat;
 
 	std::vector<float> descriptors;
@@ -86,6 +90,7 @@ int main(int argc, const char* argv[])
 	hog.blockSize = Size(10, 10);
 	hog.cellSize = Size(5, 5);
 
+	cout<<"Before HOG.compute"<<endl;
 	/*hog.compute(img, descriptors, Size(10, 10));
 	Mat descMat = Mat(descriptors);
 	transpose(descMat,descMat);
@@ -102,7 +107,10 @@ int main(int argc, const char* argv[])
 		int labels[1] = { 1 };
 		Mat temMat(1, 1, CV_32S, labels);
 		labelsMat.push_back(temMat);
+		cout<<i<<endl;
 	}
+	
+	cout<<"pos_lst"<<endl;
 
 	//descriptors.clear();
 	//descMat.release();
@@ -145,7 +153,7 @@ int main(int argc, const char* argv[])
 	//float prediction = svm->predict(descriptors);
 
 	Ptr<SVM> svmLoad;
-	svmLoad = SVM::load<SVM>("hogSVMFaces.xml");
+	svmLoad = SVM::load("hogSVMFaces.xml");
 	//Mat loadSVMMat = svmLoad->getSupportVectors();
 	vector<float> loadSVMvector;
 
