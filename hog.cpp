@@ -154,6 +154,7 @@ int main(int argc, const char* argv[])
 	
 	svm->save("hogSVMFaces.xml");
 
+
 	//hog.compute(img, descriptors, Size(10, 10));
 	//float prediction = svm->predict(descriptors);
 	cout<<"svm"<<endl;
@@ -169,10 +170,21 @@ int main(int argc, const char* argv[])
 	hogTest.cellSize = Size(5, 5);
 	hogTest.setSVMDetector(loadSVMvector);
 
+
 	vector<Rect> found, found_filtered;
 	//Test image name to enter
-	Mat testImg = imread("1.png",0);
+	//Mat testImg = imread("1.png",0);
 
+
+	cout << "Enter Tes' Data directory path" << endl;
+	cin >> pathData;
+
+	stringstream filePathName;
+        filePathName << pathData << "/" << "test.png";
+        cout << filePathName.str() << endl;
+        Mat testImg = imread(filePathName.str(),0);
+	//cout<< "nesto posle"<<endl;
+	
 	//HOG detection function
 	hogTest.detectMultiScale(testImg, found, 0.0, Size(10,10), Size(0,0),1.1, 1);
 
@@ -186,6 +198,8 @@ int main(int argc, const char* argv[])
 		if (j == found.size())
 			found_filtered.push_back(r);
 	}
+
+	
 
 	/*Draw rectangle around detections*/
 	for (i = 0; i < found_filtered.size(); i++)
