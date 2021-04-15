@@ -132,6 +132,8 @@ int main(int argc, const char* argv[])
 		Mat temMat(1, 1, CV_32S, labels);
 		labelsMat.push_back(temMat);
 	}
+	
+	cout<<"neg_lst"<<endl;
 
 	// Set up training data
 	//int labels[2] = { 1, 0 };
@@ -139,7 +141,9 @@ int main(int argc, const char* argv[])
 
 	// Set up SVM's parameters
 	Ptr<SVM> svm = SVM::create();
+	
 	svm->setType(SVM::C_SVC);
+	
 	svm->setKernel(SVM::LINEAR);
 	svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
 
@@ -147,11 +151,12 @@ int main(int argc, const char* argv[])
 	// Train the SVM with given parameters
 	Ptr<TrainData> td = TrainData::create(trainingDataMat, ROW_SAMPLE, labelsMat);
 	svm->train(td);
+	
 	svm->save("hogSVMFaces.xml");
 
 	//hog.compute(img, descriptors, Size(10, 10));
 	//float prediction = svm->predict(descriptors);
-
+	cout<<"svm"<<endl;
 	Ptr<SVM> svmLoad;
 	svmLoad = SVM::load("hogSVMFaces.xml");
 	//Mat loadSVMMat = svmLoad->getSupportVectors();
