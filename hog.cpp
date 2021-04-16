@@ -59,7 +59,7 @@ int main(int argc, const char* argv[])
 	for (int i = 1; i < negCount; ++i)
 	{
 		stringstream filePathName;
-		filePathName << pathData << "/" << "nveimages" << "/" << "TrainNeg" <<" ("<<i<<")"<< ".png";
+		filePathName << pathData << "/" << "nveimages" << "/" << "TrainNeg" <<"/"<<"TrainNeg"<<" ("<<i<<")"<< ".png";
 		cout << filePathName.str() << endl;
 		Mat img = imread(filePathName.str(), 0);
 		if (img.empty())
@@ -151,7 +151,7 @@ int main(int argc, const char* argv[])
 	// Train the SVM with given parameters
 	Ptr<TrainData> td = TrainData::create(trainingDataMat, ROW_SAMPLE, labelsMat);
 	svm->train(td);
-	
+	cout<<"pre"<<endl;
 	svm->save("hogSVMFaces.xml");
 
 
