@@ -183,11 +183,11 @@ int main(int argc, const char* argv[])
         filePathName << pathData << "/" << "test.png";
         cout << filePathName.str() << endl;
         Mat testImg = imread(filePathName.str(),0);
-	//cout<< "nesto posle"<<endl;
-	
+	cout<< "nesto posle"<<endl;
+	//resize(testImg, testImg, Size(50, 50));
 	//HOG detection function
-	hogTest.detectMultiScale(testImg, found, 0.0, Size(10,10), Size(0,0),1.1, 1);
-
+	hogTest.detectMultiScale(testImg, found, 0.0, Size(10,10), Size(0,0),1.5, 0);
+	cout<< "multiscale"<<endl;
 	size_t i, j;
 	for (i = 0; i < found.size(); i++)
 	{
@@ -208,9 +208,9 @@ int main(int argc, const char* argv[])
 		// the HOG detector returns slightly larger rectangles than the real objects.
 		// so we slightly shrink the rectangles to get a nicer output.
 		r.x += cvRound(r.width*0.1);
-		r.width = cvRound(r.width*0.8);
+		r.width = cvRound(r.width*0.5);
 		r.y += cvRound(r.height*0.07);
-		r.height = cvRound(r.height*0.8);
+		r.height = cvRound(r.height*0.5);
 		rectangle(testImg, r.tl(), r.br(), cv::Scalar(0, 255, 0), 1);
 	}
 
