@@ -33,15 +33,15 @@ int main(int argc, const char* argv[])
 	cin >> pathData;
 
 	//Positive image count
-	posCount = 167;
+	posCount = 5417;
 	//Negative image count
-	negCount = 167;
+	negCount = 5417;
 
 	for(int i=1; i < posCount; ++i)
 	{
 		stringstream filePathName;
 		filePathName << pathData << "/"<< "pveimages" << "/" << i << ".png";
-		cout << filePathName.str() << endl;
+		//cout << filePathName.str() << endl;
 		Mat img = imread(filePathName.str(),0);
 		if (img.empty())
 		{ 
@@ -59,8 +59,8 @@ int main(int argc, const char* argv[])
 	for (int i = 1; i < negCount; ++i)
 	{
 		stringstream filePathName;
-		filePathName << pathData << "/" << "nveimages" << "/" << "TrainNeg" <<"/"<<"TrainNeg"<<" ("<<i<<")"<< ".png";
-		cout << filePathName.str() << endl;
+		filePathName << pathData << "/" << "nveimages" << "/" << "TrainNeg" <<"/"<<i<< ".png";
+		//cout << filePathName.str() << endl;
 		Mat img = imread(filePathName.str(), 0);
 		if (img.empty())
 		{
@@ -81,16 +81,16 @@ int main(int argc, const char* argv[])
 	/*resize(img,img,Size(50,50));*/
 
 	HOGDescriptor hog;
-	cout<<"HOGDescriptor"<<endl;
+	//cout<<"HOGDescriptor"<<endl;
 	Mat gradMat, trainingDataMat, labelsMat;
 
 	std::vector<float> descriptors;
 
 	hog.winSize = Size(50,50);
-	hog.blockSize = Size(10, 10);
-	hog.cellSize = Size(5, 5);
+	hog.blockSize = Size(50, 50);
+	hog.cellSize = Size(1, 1);
 
-	cout<<"Before HOG.compute"<<endl;
+	//cout<<"Before HOG.compute"<<endl;
 	/*hog.compute(img, descriptors, Size(10, 10));
 	Mat descMat = Mat(descriptors);
 	transpose(descMat,descMat);
@@ -99,7 +99,7 @@ int main(int argc, const char* argv[])
 	//For positive Data
 	for (int i = 0; i < img_pos_lst.size(); ++i)
 	{
-		hog.compute(img_pos_lst[i], descriptors, Size(10, 10));
+		hog.compute(img_pos_lst[i], descriptors, Size(50, 50));
 		Mat descMat = Mat(descriptors);
 		transpose(descMat, descMat);
 		trainingDataMat.push_back(descMat);
@@ -107,10 +107,10 @@ int main(int argc, const char* argv[])
 		int labels[1] = { 1 };
 		Mat temMat(1, 1, CV_32S, labels);
 		labelsMat.push_back(temMat);
-		cout<<i<<endl;
+		//cout<<i<<endl;
 	}
 	
-	cout<<"pos_lst"<<endl;
+	//cout<<"pos_lst"<<endl;
 
 	//descriptors.clear();
 	//descMat.release();
@@ -123,7 +123,7 @@ int main(int argc, const char* argv[])
 	//for negative data
 	for (int i = 0; i < img_neg_list.size(); ++i)
 	{
-		hog.compute(img_neg_list[i], descriptors, Size(10, 10));
+		hog.compute(img_neg_list[i], descriptors, Size(50, 50));
 		Mat descMat = Mat(descriptors);
 		transpose(descMat, descMat);
 		trainingDataMat.push_back(descMat);
@@ -133,7 +133,7 @@ int main(int argc, const char* argv[])
 		labelsMat.push_back(temMat);
 	}
 	
-	cout<<"neg_lst"<<endl;
+	//cout<<"neg_lst"<<endl;
 
 	// Set up training data
 	//int labels[2] = { 1, 0 };
@@ -151,13 +151,13 @@ int main(int argc, const char* argv[])
 	// Train the SVM with given parameters
 	Ptr<TrainData> td = TrainData::create(trainingDataMat, ROW_SAMPLE, labelsMat);
 	svm->train(td);
-	cout<<"pre"<<endl;
+	//cout<<"pre"<<endl;
 	svm->save("hogSVMFaces.xml");
 
 
 	//hog.compute(img, descriptors, Size(10, 10));
 	//float prediction = svm->predict(descriptors);
-	cout<<"svm"<<endl;
+	//cout<<"svm"<<endl;
 	Ptr<SVM> svmLoad;
 	svmLoad = SVM::load("hogSVMFaces.xml");
 	//Mat loadSVMMat = svmLoad->getSupportVectors();
@@ -166,8 +166,8 @@ int main(int argc, const char* argv[])
 	get_svm_detector(svmLoad, loadSVMvector);
 	HOGDescriptor hogTest;
 	hogTest.winSize = Size(50, 50);
-	hogTest.blockSize = Size(10, 10);
-	hogTest.cellSize = Size(5, 5);
+	hogTest.blockSize = Size(50, 50);
+	hogTest.cellSize = Size(1, 1);
 	hogTest.setSVMDetector(loadSVMvector);
 
 
@@ -186,7 +186,7 @@ int main(int argc, const char* argv[])
 	cout<< "nesto posle"<<endl;
 	//resize(testImg, testImg, Size(50, 50));
 	//HOG detection function
-	hogTest.detectMultiScale(testImg, found, 0.0, Size(10,10), Size(0,0),1.5, 0);
+	hogTest.detectMultiScale(testImg, found, 0.0, Size(50,50), Size(0,0),1.1, 1);
 	cout<< "multiscale"<<endl;
 	size_t i, j;
 	for (i = 0; i < found.size(); i++)
@@ -208,9 +208,9 @@ int main(int argc, const char* argv[])
 		// the HOG detector returns slightly larger rectangles than the real objects.
 		// so we slightly shrink the rectangles to get a nicer output.
 		r.x += cvRound(r.width*0.1);
-		r.width = cvRound(r.width*0.5);
+		r.width = cvRound(r.width*0.8);
 		r.y += cvRound(r.height*0.07);
-		r.height = cvRound(r.height*0.5);
+		r.height = cvRound(r.height*0.8);
 		rectangle(testImg, r.tl(), r.br(), cv::Scalar(0, 255, 0), 1);
 	}
 
