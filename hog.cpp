@@ -24,6 +24,7 @@ using namespace cv::ml;
 
 vector< Mat > img_pos_lst, img_neg_list;
 void get_svm_detector(const Ptr<SVM>& svm, vector< float > & hog_detector);
+void convert_to_ml( const vector< Mat > & train_samples, Mat& trainData );
 
 int main(int argc, const char* argv[])
 {
@@ -42,12 +43,12 @@ int main(int argc, const char* argv[])
 		stringstream filePathName;
 		filePathName << pathData << "/"<< "pveimages" << "/" << i << ".png";
 		//cout << filePathName.str() << endl;
-		Mat img = imread(filePathName.str(),0);
+		Mat img = imread(filePathName.str(),1);
 		if (img.empty())
 		{ 
-			continue;
+			return -1;
 		}
-		resize(img, img, Size(50, 50));
+		resize(img, img, Size(64, 64));
 		//imshow("testPositive", img);
 		//waitKey(0);
 
@@ -61,12 +62,12 @@ int main(int argc, const char* argv[])
 		stringstream filePathName;
 		filePathName << pathData << "/" << "nveimages" << "/" << "TrainNeg" <<"/"<<i<< ".png";
 		//cout << filePathName.str() << endl;
-		Mat img = imread(filePathName.str(), 0);
+		Mat img = imread(filePathName.str(), 1);
 		if (img.empty())
 		{
-			continue;
+			return -1;
 		}
-		resize(img, img, Size(50, 50));
+		resize(img, img, Size(64, 64));
 		//imshow("testNegative", img);
 		//waitKey(0);
 
@@ -82,13 +83,13 @@ int main(int argc, const char* argv[])
 
 	HOGDescriptor hog;
 	//cout<<"HOGDescriptor"<<endl;
-	Mat gradMat, trainingDataMat, labelsMat;
-
+	Mat gradMat,  labelsMat;
+	vector<Mat> trainingDataMat;
 	std::vector<float> descriptors;
 
-	hog.winSize = Size(50,50);
-	hog.blockSize = Size(50, 50);
-	hog.cellSize = Size(1, 1);
+	hog.winSize = Size(64, 64);
+	hog.blockSize = Size(16, 16);
+	hog.cellSize = Size(8, 8);
 
 	//cout<<"Before HOG.compute"<<endl;
 	/*hog.compute(img, descriptors, Size(10, 10));
@@ -97,9 +98,11 @@ int main(int argc, const char* argv[])
 	trainingDataMat.push_back(descMat);*/
 
 	//For positive Data
+	cout<<"before msking pos feature"<<endl;
 	for (int i = 0; i < img_pos_lst.size(); ++i)
 	{
-		hog.compute(img_pos_lst[i], descriptors, Size(50, 50));
+		hog.compute(img_pos_lst[i], descriptors, Size(0, 0), Size(0, 0));
+		//cout<<descriptors.size()<<endl;
 		Mat descMat = Mat(descriptors);
 		transpose(descMat, descMat);
 		trainingDataMat.push_back(descMat);
@@ -109,7 +112,7 @@ int main(int argc, const char* argv[])
 		labelsMat.push_back(temMat);
 		//cout<<i<<endl;
 	}
-	
+	cout<<"after making pos feature"<<endl;
 	//cout<<"pos_lst"<<endl;
 
 	//descriptors.clear();
@@ -123,7 +126,7 @@ int main(int argc, const char* argv[])
 	//for negative data
 	for (int i = 0; i < img_neg_list.size(); ++i)
 	{
-		hog.compute(img_neg_list[i], descriptors, Size(50, 50));
+		hog.compute(img_neg_list[i], descriptors, Size(0, 0), Size(0, 0));
 		Mat descMat = Mat(descriptors);
 		transpose(descMat, descMat);
 		trainingDataMat.push_back(descMat);
@@ -133,7 +136,7 @@ int main(int argc, const char* argv[])
 		labelsMat.push_back(temMat);
 	}
 	
-	//cout<<"neg_lst"<<endl;
+	cout<<"neg_lst"<<endl;
 
 	// Set up training data
 	//int labels[2] = { 1, 0 };
@@ -142,16 +145,29 @@ int main(int argc, const char* argv[])
 	// Set up SVM's parameters
 	Ptr<SVM> svm = SVM::create();
 	
+	svm->setCoef0( 0.0 );
+    	svm->setDegree( 3 );
+        svm->setTermCriteria( TermCriteria(TermCriteria::MAX_ITER + TermCriteria::EPS, 1000, 1e-3 ) );
+        svm->setGamma( 0 );
+    	svm->setKernel( SVM::LINEAR );
+    	svm->setNu( 0.5 );
+    	svm->setP( 0.1 ); // for EPSILON_SVR, epsilon in loss function?
+    	svm->setC( 0.01 ); // From paper, soft classifier
 	svm->setType(SVM::C_SVC);
-	
-	svm->setKernel(SVM::LINEAR);
-	svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
-
-
+	cout<<"set svm coef"<<endl;
+	//svm->setKernel(SVM::LINEAR);
+	//svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
+	Mat train_data;
+	cout<<"created train_data"<<endl;
+	convert_to_ml(trainingDataMat, train_data);
+	cout<<"converted to ml"<<endl;
+	/*
 	// Train the SVM with given parameters
 	Ptr<TrainData> td = TrainData::create(trainingDataMat, ROW_SAMPLE, labelsMat);
 	svm->train(td);
 	//cout<<"pre"<<endl;
+	*/
+	svm->train( train_data, ROW_SAMPLE, labelsMat );
 	svm->save("hogSVMFaces.xml");
 
 
@@ -162,16 +178,23 @@ int main(int argc, const char* argv[])
 	svmLoad = SVM::load("hogSVMFaces.xml");
 	//Mat loadSVMMat = svmLoad->getSupportVectors();
 	vector<float> loadSVMvector;
+	
+	cout<<"load svm"<<endl;
 
 	get_svm_detector(svmLoad, loadSVMvector);
 	HOGDescriptor hogTest;
-	hogTest.winSize = Size(50, 50);
-	hogTest.blockSize = Size(50, 50);
-	hogTest.cellSize = Size(1, 1);
+	hogTest.winSize = Size(64, 64);
+	hogTest.blockSize = Size(16, 16);
+	hogTest.blockStride = Size(8, 8);
+	hogTest.cellSize = Size(8, 8);
+	hogTest.nbins = 9;
 	hogTest.setSVMDetector(loadSVMvector);
+	hogTest.save("hogSVMFaces.xml");
+	hogTest.load("hogSVMFaces.xml");
 
 
 	vector<Rect> found, found_filtered;
+	vector<double> found_weights;
 	//Test image name to enter
 	//Mat testImg = imread("1.png",0);
 
@@ -182,12 +205,35 @@ int main(int argc, const char* argv[])
 	stringstream filePathName;
         filePathName << pathData << "/" << "test.png";
         cout << filePathName.str() << endl;
-        Mat testImg = imread(filePathName.str(),0);
+        Mat testImg = imread(filePathName.str(), 1);
+        resize(testImg, testImg, Size(512,512));
 	cout<< "nesto posle"<<endl;
 	//resize(testImg, testImg, Size(50, 50));
 	//HOG detection function
-	hogTest.detectMultiScale(testImg, found, 0.0, Size(50,50), Size(0,0),1.1, 1);
-	cout<< "multiscale"<<endl;
+	hogTest.detectMultiScale(testImg, found, found_weights);
+	
+	 for ( size_t j = 0; j < found.size(); j++ )
+        {
+            Scalar color = Scalar( 0, found_weights[j] * found_weights[j] * 200, 0 );
+            rectangle( testImg, found[j], color, testImg.cols / 400 + 1 );
+        }
+        resize(testImg, testImg, Size(200, 200));
+        imshow( "hogSVMFaces.xml", testImg );
+
+	//cout<<found.size()<<endl;
+	/*
+	vector<Point> found_locations;
+	hogTest.detect(testImg, found_locations);
+	cout<<found_locations.size()<<endl;
+	if(!found_locations.empty())
+	{
+    		cout<<"PERSON"<<endl; 
+	}
+	else
+		cout<<"NOT PERSON"<<endl;
+	*/	
+	//cout<< "multiscale"<<endl;
+	/*
 	size_t i, j;
 	for (i = 0; i < found.size(); i++)
 	{
@@ -199,22 +245,24 @@ int main(int argc, const char* argv[])
 			found_filtered.push_back(r);
 	}
 
-	
+	*/
 
 	/*Draw rectangle around detections*/
+	/*
 	for (i = 0; i < found_filtered.size(); i++)
 	{
 		Rect r = found_filtered[i];
 		// the HOG detector returns slightly larger rectangles than the real objects.
 		// so we slightly shrink the rectangles to get a nicer output.
 		r.x += cvRound(r.width*0.1);
-		r.width = cvRound(r.width*0.8);
-		r.y += cvRound(r.height*0.07);
+		r.width = cvRound(r.width*0.7);
+		r.y += cvRound(r.height*0.05);
 		r.height = cvRound(r.height*0.8);
 		rectangle(testImg, r.tl(), r.br(), cv::Scalar(0, 255, 0), 1);
 	}
 
 	imshow("testImage",testImg);
+	*/
 	waitKey(0);
 }
 
@@ -241,3 +289,26 @@ void get_svm_detector(const Ptr<SVM>& svm, vector< float > & hog_detector)
 	memcpy(&hog_detector[0], sv.ptr(), sv.cols * sizeof(hog_detector[0]));
 	hog_detector[sv.cols] = (float)-rho;
 }
+void convert_to_ml( const vector< Mat > & train_samples, Mat& trainData )
+{
+    //--Convert data
+    const int rows = (int)train_samples.size();
+    const int cols = (int)std::max( train_samples[0].cols, train_samples[0].rows );
+    Mat tmp( 1, cols, CV_32FC1 ); //< used for transposition if needed
+    trainData = Mat( rows, cols, CV_32FC1 );
+    for( size_t i = 0 ; i < train_samples.size(); ++i )
+    {
+        CV_Assert( train_samples[i].cols == 1 || train_samples[i].rows == 1 );
+        if( train_samples[i].cols == 1 )
+        {
+            transpose( train_samples[i], tmp );
+            tmp.copyTo( trainData.row( (int)i ) );
+        }
+        else if( train_samples[i].rows == 1 )
+        {
+            train_samples[i].copyTo( trainData.row( (int)i ) );
+        }
+    }
+}
+
+
