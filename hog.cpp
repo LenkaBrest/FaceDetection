@@ -183,10 +183,10 @@ int main(int argc, const char* argv[])
 
 	get_svm_detector(svmLoad, loadSVMvector);
 	HOGDescriptor hogTest;
-	hogTest.winSize = Size(256, 256);
-	hogTest.blockSize = Size(16, 16);
-	hogTest.blockStride = Size(8, 8);
-	hogTest.cellSize = Size(8, 8);
+	hogTest.winSize = Size(64, 64);
+	hogTest.blockSize = Size(4, 4);
+	hogTest.blockStride = Size(2, 2);
+	hogTest.cellSize = Size(2, 2);
 	hogTest.nbins = 9;
 	hogTest.setSVMDetector(loadSVMvector);
 	hogTest.save("hogSVMFaces.xml");
@@ -203,26 +203,26 @@ int main(int argc, const char* argv[])
 	cin >> pathData;
 
 	stringstream filePathName;
-        filePathName << pathData << "/" << "jutro.png";
+        filePathName << pathData << "/" << "soprano.png";
         cout << filePathName.str() << endl;
         Mat testImg = imread(filePathName.str(), 1);
-        resize(testImg, testImg, Size(256, 256));
+        resize(testImg, testImg, Size(1024, 512));
 	cout<< "nesto posle"<<endl;
 	//resize(testImg, testImg, Size(50, 50));
 	//HOG detection function
-	/*
-	hogTest.detectMultiScale(testImg, found, found_weights);
+	
+	hogTest.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
 	
 	 for ( size_t j = 0; j < found.size(); j++ )
         {
             Scalar color = Scalar( 0, found_weights[j] * found_weights[j] * 200, 0 );
             rectangle( testImg, found[j], color, testImg.cols / 400 + 1 );
         }
-        resize(testImg, testImg, Size(256, 256));
+        //resize(testImg, testImg, Size(256, 256));
         imshow( "hogSVMFaces.xml", testImg );
-*/
+
 	//cout<<found.size()<<endl;
-	
+	/*
 	vector<Point> found_locations;
 	hogTest.detect(testImg, found_locations);
 	cout<<found_locations.size()<<endl;
@@ -232,7 +232,7 @@ int main(int argc, const char* argv[])
 	}
 	else
 		cout<<"NOT PERSON"<<endl;
-		
+	*/	
 	//cout<< "multiscale"<<endl;
 	/*
 	size_t i, j;
