@@ -48,7 +48,7 @@ int main(int argc, const char* argv[])
 		{ 
 			return -1;
 		}
-		resize(img, img, Size(64, 64));
+		resize(img, img, Size(256, 256));
 		//imshow("testPositive", img);
 		//waitKey(0);
 
@@ -67,7 +67,7 @@ int main(int argc, const char* argv[])
 		{
 			return -1;
 		}
-		resize(img, img, Size(64, 64));
+		resize(img, img, Size(256, 256));
 		//imshow("testNegative", img);
 		//waitKey(0);
 
@@ -87,7 +87,7 @@ int main(int argc, const char* argv[])
 	vector<Mat> trainingDataMat;
 	std::vector<float> descriptors;
 
-	hog.winSize = Size(64, 64);
+	hog.winSize = Size(256, 256);
 	hog.blockSize = Size(16, 16);
 	hog.cellSize = Size(8, 8);
 
@@ -183,7 +183,7 @@ int main(int argc, const char* argv[])
 
 	get_svm_detector(svmLoad, loadSVMvector);
 	HOGDescriptor hogTest;
-	hogTest.winSize = Size(64, 64);
+	hogTest.winSize = Size(256, 256);
 	hogTest.blockSize = Size(16, 16);
 	hogTest.blockStride = Size(8, 8);
 	hogTest.cellSize = Size(8, 8);
@@ -203,13 +203,14 @@ int main(int argc, const char* argv[])
 	cin >> pathData;
 
 	stringstream filePathName;
-        filePathName << pathData << "/" << "test.png";
+        filePathName << pathData << "/" << "jutro.png";
         cout << filePathName.str() << endl;
         Mat testImg = imread(filePathName.str(), 1);
-        resize(testImg, testImg, Size(512,512));
+        resize(testImg, testImg, Size(256, 256));
 	cout<< "nesto posle"<<endl;
 	//resize(testImg, testImg, Size(50, 50));
 	//HOG detection function
+	/*
 	hogTest.detectMultiScale(testImg, found, found_weights);
 	
 	 for ( size_t j = 0; j < found.size(); j++ )
@@ -217,11 +218,11 @@ int main(int argc, const char* argv[])
             Scalar color = Scalar( 0, found_weights[j] * found_weights[j] * 200, 0 );
             rectangle( testImg, found[j], color, testImg.cols / 400 + 1 );
         }
-        resize(testImg, testImg, Size(200, 200));
+        resize(testImg, testImg, Size(256, 256));
         imshow( "hogSVMFaces.xml", testImg );
-
+*/
 	//cout<<found.size()<<endl;
-	/*
+	
 	vector<Point> found_locations;
 	hogTest.detect(testImg, found_locations);
 	cout<<found_locations.size()<<endl;
@@ -231,7 +232,7 @@ int main(int argc, const char* argv[])
 	}
 	else
 		cout<<"NOT PERSON"<<endl;
-	*/	
+		
 	//cout<< "multiscale"<<endl;
 	/*
 	size_t i, j;
