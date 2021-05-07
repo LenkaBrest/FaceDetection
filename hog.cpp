@@ -83,8 +83,9 @@ int main(int argc, const char* argv[])
 
 	HOGDescriptor hog;
 	//cout<<"HOGDescriptor"<<endl;
-	Mat gradMat,  labelsMat;
-	vector<Mat> trainingDataMat;
+	Mat gradMat;
+	Mat labelsMat;
+	Mat trainingDataMat;
 	std::vector<float> descriptors;
 
 	hog.winSize = Size(256, 256);
@@ -98,7 +99,7 @@ int main(int argc, const char* argv[])
 	trainingDataMat.push_back(descMat);*/
 
 	//For positive Data
-	cout<<"before msking pos feature"<<endl;
+	cout<<"before making pos feature"<<endl;
 	for (int i = 0; i < img_pos_lst.size(); ++i)
 	{
 		hog.compute(img_pos_lst[i], descriptors, Size(0, 0), Size(0, 0));
@@ -107,7 +108,8 @@ int main(int argc, const char* argv[])
 		transpose(descMat, descMat);
 		trainingDataMat.push_back(descMat);
 		descriptors.clear();
-		int labels[1] = { 1 };
+		int labels[1]=  {1} ;
+		//cout<<labels<<endl;
 		Mat temMat(1, 1, CV_32S, labels);
 		labelsMat.push_back(temMat);
 		//cout<<i<<endl;
@@ -131,10 +133,12 @@ int main(int argc, const char* argv[])
 		transpose(descMat, descMat);
 		trainingDataMat.push_back(descMat);
 		descriptors.clear();
-		int labels[1] = { 0 };
+		int labels [1]= {-1};
+		//cout<<labels<<endl;
 		Mat temMat(1, 1, CV_32S, labels);
 		labelsMat.push_back(temMat);
 	}
+	
 	
 	cout<<"neg_lst"<<endl;
 
@@ -144,10 +148,10 @@ int main(int argc, const char* argv[])
 
 	// Set up SVM's parameters
 	Ptr<SVM> svm = SVM::create();
-	
+	/*
 	svm->setCoef0( 0.0 );
     	svm->setDegree( 3 );
-        svm->setTermCriteria( TermCriteria(TermCriteria::MAX_ITER + TermCriteria::EPS, 1000, 1e-3 ) );
+        //svm->setTermCriteria( TermCriteria(TermCriteria::MAX_ITER + TermCriteria::EPS, 1000, 1e-3 ) );
         svm->setGamma( 0 );
     	svm->setKernel( SVM::LINEAR );
     	svm->setNu( 0.5 );
@@ -156,18 +160,24 @@ int main(int argc, const char* argv[])
 	svm->setType(SVM::C_SVC);
 	cout<<"set svm coef"<<endl;
 	//svm->setKernel(SVM::LINEAR);
-	//svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
+	svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
 	Mat train_data;
 	cout<<"created train_data"<<endl;
-	convert_to_ml(trainingDataMat, train_data);
-	cout<<"converted to ml"<<endl;
-	/*
+	//convert_to_ml(trainingDataMat, train_data);
+	//cout<<"converted to ml"<<endl;
+	
 	// Train the SVM with given parameters
-	Ptr<TrainData> td = TrainData::create(trainingDataMat, ROW_SAMPLE, labelsMat);
+	Ptr<TrainData> td = TrainData::create(trainingDataMat, COL_SAMPLE, labelsMat);
 	svm->train(td);
-	//cout<<"pre"<<endl;
+	cout<<"pre"<<endl;
 	*/
-	svm->train( train_data, ROW_SAMPLE, labelsMat );
+	cout<<trainingDataMat.size()<<endl;
+	cout<<labelsMat.size()<<endl;
+	//transpose(trainingDataMat, trainingDataMat);
+	//transpose(labelsMat, labelsMat);
+	svm->trainAuto(trainingDataMat, COL_SAMPLE, labelsMat);
+	//svm->trainAuto(td);
+	cout<<"trained"<<endl;
 	svm->save("hogSVMFaces.xml");
 
 
@@ -206,7 +216,7 @@ int main(int argc, const char* argv[])
         filePathName << pathData << "/" << "soprano.png";
         cout << filePathName.str() << endl;
         Mat testImg = imread(filePathName.str(), 1);
-        resize(testImg, testImg, Size(1024, 512));
+        //resize(testImg, testImg, Size(1024, 512));
 	cout<< "nesto posle"<<endl;
 	//resize(testImg, testImg, Size(50, 50));
 	//HOG detection function
