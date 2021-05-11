@@ -200,7 +200,7 @@ int main(int argc, const char* argv[])
     	svm->setNu( 0.5 );
     	svm->setP( 0.1 ); // for EPSILON_SVR, epsilon in loss function?
     	svm->setC( 0.01 ); // From paper, soft classifier
-	//svm->setType(SVM::C_SVC);
+	svm->setType(SVM::C_SVC);
 	cout<<"set svm coef"<<endl;
 	//svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
 	//Mat train_data;
@@ -253,16 +253,16 @@ int main(int argc, const char* argv[])
 
 	get_svm_detector(svm, loadSVMvector);
 	HOGDescriptor hogTest;
-	hogTest.winSize = Size(64, 64);
-	hogTest.blockSize = Size(4, 4);
-	hogTest.blockStride = Size(2, 2);
-	hogTest.cellSize = Size(2, 2);
-	hogTest.nbins = 9;
+	hogTest.winSize = Size(256, 256);
+	hogTest.blockSize = Size(16, 16);
+	//hogTest.blockStride = Size(2, 2);
+	hogTest.cellSize = Size(8, 8);
+	//hogTest.nbins = 9;
 	hogTest.setSVMDetector(loadSVMvector);
 	hogTest.save("hogSVMFaces.xml");
 	cout<<loadSVMvector.size()<<endl;
-	HOGDescriptor hogd;
-	hogd.load("hogSVMFaces.xml");
+	//HOGDescriptor hogd;
+	hogTest.load("hogSVMFaces.xml");
 
 
 	vector<Rect> found, found_filtered;
@@ -275,9 +275,10 @@ int main(int argc, const char* argv[])
 	//cin >> pathData;
 
 	stringstream filePathName;
-        filePathName << pathData << "/" << "test.png";
+        filePathName << pathData << "/" << "park.png";
         cout << filePathName.str() << endl;
         Mat testImg = imread(filePathName.str(), 1);
+        resize(testImg, testImg, Size(256,256));
         //resize(testImg, testImg, Size(256, 256));
         
         imshow("test picture",testImg);
@@ -289,11 +290,12 @@ int main(int argc, const char* argv[])
 	
 	//hogd.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
 	
-	//hog.compute(testImg, descriptors, Size(0, 0), Size(0, 0));
+	hogTest.compute(testImg, descriptors, Size(0, 0), Size(0, 0));
+	cout<<descriptors.size()<<endl;
 	/*Mat image = get_hogdescriptor_visual_image(background,descriptors,hog.winSize,hog.cellSize,3, 2.5);
 	imshow("hog of test image",image);
 	waitKey(HOW_LONG);*/
-	
+	/*
 	hogTest.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
 	
 	 for ( size_t j = 0; j < found.size(); j++ )
@@ -303,11 +305,11 @@ int main(int argc, const char* argv[])
         }
         //resize(testImg, testImg, Size(256, 256));
         imshow( "hogSVMFaces.xml", testImg );
-
+*/
 	//cout<<found.size()<<endl;
 	
 	vector<Point> found_locations;
-	/*hogTest.detect(testImg, found_locations);
+	hogTest.detect(testImg, found_locations, 0);
 	cout<<found_locations.size()<<endl;
 	if(!found_locations.empty())
 	{
@@ -315,7 +317,7 @@ int main(int argc, const char* argv[])
 	}
 	else
 		cout<<"NOT PERSON"<<endl;
-	*/	
+		
 	//cout<< "multiscale"<<endl;
 	/*
 	size_t i, j;
