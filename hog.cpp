@@ -35,7 +35,7 @@ int main(int argc, const char* argv[])
 	string pathData;
 	int posCount, negCount;
 	//cout << "Enter Positive Data directory path" << endl;
-	pathData = "/home/lenka/Documents/FaceDetection";
+	pathData = "/home/nemanja/Desktop/FaceDetection";
 
 	//Positive image count
 	posCount = 5417;
@@ -139,7 +139,7 @@ int main(int argc, const char* argv[])
 		//int labels=  {1} ;
 		//cout<<labels<<endl;
 		//Mat temMat(1, 1, CV_32S, labels);
-		labelsMat.push_back(1);
+		labelsMat.push_back(-1);
 		//cout<<i<<endl;
 	}
 	cout<<"after making pos feature"<<endl;
@@ -175,7 +175,7 @@ int main(int argc, const char* argv[])
 		//int labels = {-1};
 		//cout<<labels<<endl;
 		//Mat temMat(1, 1, CV_32S, labels);
-		labelsMat.push_back(-1);
+		labelsMat.push_back(1);
 	}
 	
 	
@@ -273,51 +273,60 @@ int main(int argc, const char* argv[])
 
 	//cout << "Enter Tes' Data directory path" << endl;
 	//cin >> pathData;
-
-	stringstream filePathName;
-        filePathName << pathData << "/" << "park.png";
-        cout << filePathName.str() << endl;
-        Mat testImg = imread(filePathName.str(), 1);
-        resize(testImg, testImg, Size(256,256));
-        //resize(testImg, testImg, Size(256, 256));
-        
-        imshow("test picture",testImg);
-		waitKey(HOW_LONG);
-        
-	cout<< "nesto posle"<<endl;
-	//resize(testImg, testImg, Size(50, 50));
-	//HOG detection function
+	int test_pic_count = 17;
 	
-	//hogd.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
-	
-	hogTest.compute(testImg, descriptors, Size(0, 0), Size(0, 0));
-	cout<<descriptors.size()<<endl;
-	/*Mat image = get_hogdescriptor_visual_image(background,descriptors,hog.winSize,hog.cellSize,3, 2.5);
-	imshow("hog of test image",image);
-	waitKey(HOW_LONG);*/
-	/*
-	hogTest.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
-	
-	 for ( size_t j = 0; j < found.size(); j++ )
-        {
-            Scalar color = Scalar( 0, found_weights[j] * found_weights[j] * 200, 0 );
-            rectangle( testImg, found[j], color, testImg.cols / 400 + 1 );
-        }
-        //resize(testImg, testImg, Size(256, 256));
-        imshow( "hogSVMFaces.xml", testImg );
-*/
-	//cout<<found.size()<<endl;
-	
-	vector<Point> found_locations;
-	hogTest.detect(testImg, found_locations, 0);
-	cout<<found_locations.size()<<endl;
-	if(!found_locations.empty())
+	for (int i = 1; i < (test_pic_count + 1); ++i)
 	{
-    		cout<<"PERSON"<<endl; 
-	}
-	else
-		cout<<"NOT PERSON"<<endl;
+		stringstream filePathName;
+		filePathName << pathData << "/" <<i<< ".png";
 		
+		Mat testImg = imread(filePathName.str(), 1);
+		resize(testImg, testImg, Size(256,256));
+		//resize(testImg, testImg, Size(256, 256));
+		
+		
+		imshow("test picture",testImg);
+			waitKey(HOW_LONG);
+		
+		//cout<< "nesto posle"<<endl;
+		//resize(testImg, testImg, Size(50, 50));
+		//HOG detection function
+		
+		//hogd.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
+		
+		hogTest.compute(testImg, descriptors, Size(0, 0), Size(0, 0));
+		cout<<descriptors.size()<<endl;
+		/*Mat image = get_hogdescriptor_visual_image(background,descriptors,hog.winSize,hog.cellSize,3, 2.5);
+		imshow("hog of test image",image);
+		waitKey(HOW_LONG);*/
+		/*
+		hogTest.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
+		
+		 for ( size_t j = 0; j < found.size(); j++ )
+		{
+		    Scalar color = Scalar( 0, found_weights[j] * found_weights[j] * 200, 0 );
+		    rectangle( testImg, found[j], color, testImg.cols / 400 + 1 );
+		}
+		//resize(testImg, testImg, Size(256, 256));
+		imshow( "hogSVMFaces.xml", testImg );
+	*/
+		//cout<<found.size()<<endl;
+		
+		vector<Point> found_locations;
+		hogTest.detect(testImg, found_locations, 0);
+		cout<<found_locations.size()<<endl;
+		
+		cout <<"Test image no "<<i<<endl;
+		
+		if(!found_locations.empty())
+		{
+	    		cout<<"PERSON"<<endl; 
+		}
+		else
+			cout<<"NOT PERSON"<<endl;
+			 
+	}
+			
 	//cout<< "multiscale"<<endl;
 	/*
 	size_t i, j;
