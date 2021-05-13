@@ -253,10 +253,10 @@ int main(int argc, const char* argv[])
 
 	get_svm_detector(svm, loadSVMvector);
 	HOGDescriptor hogTest;
-	hogTest.winSize = Size(256, 256);
-	hogTest.blockSize = Size(16, 16);
+	//hogTest.winSize = Size(256, 256);
+	//hogTest.blockSize = Size(16, 16);
 	//hogTest.blockStride = Size(2, 2);
-	hogTest.cellSize = Size(8, 8);
+	//hogTest.cellSize = Size(8, 8);
 	//hogTest.nbins = 9;
 	hogTest.setSVMDetector(loadSVMvector);
 	hogTest.save("hogSVMFaces.xml");
@@ -275,7 +275,7 @@ int main(int argc, const char* argv[])
 	//cin >> pathData;
 
 	stringstream filePathName;
-        filePathName << pathData << "/" << "park.png";
+        filePathName << pathData << "/" << "soprano.png";
         cout << filePathName.str() << endl;
         Mat testImg = imread(filePathName.str(), 1);
         resize(testImg, testImg, Size(256,256));
@@ -295,7 +295,7 @@ int main(int argc, const char* argv[])
 	/*Mat image = get_hogdescriptor_visual_image(background,descriptors,hog.winSize,hog.cellSize,3, 2.5);
 	imshow("hog of test image",image);
 	waitKey(HOW_LONG);*/
-	/*
+	
 	hogTest.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
 	
 	 for ( size_t j = 0; j < found.size(); j++ )
@@ -305,9 +305,9 @@ int main(int argc, const char* argv[])
         }
         //resize(testImg, testImg, Size(256, 256));
         imshow( "hogSVMFaces.xml", testImg );
-*/
+
 	//cout<<found.size()<<endl;
-	
+	/*
 	vector<Point> found_locations;
 	hogTest.detect(testImg, found_locations, 0);
 	cout<<found_locations.size()<<endl;
@@ -317,7 +317,7 @@ int main(int argc, const char* argv[])
 	}
 	else
 		cout<<"NOT PERSON"<<endl;
-		
+	*/	
 	//cout<< "multiscale"<<endl;
 	/*
 	size_t i, j;
