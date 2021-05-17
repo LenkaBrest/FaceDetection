@@ -20,7 +20,7 @@
 #include <ctime>
 
 
-#define HOW_LONG 0 // wait until key or X is pressed, other value is in milisecs
+#define HOW_LONG 0 /// wait until key or X is pressed, other value is in milisecs
 
 using namespace std;
 using namespace cv;
@@ -70,7 +70,7 @@ int main(int argc, const char* argv[])
 		if(test_lst.size()<542 && rand()%2 == 1)
 		{
 			test_lst.push_back(img.clone());
-			test_gold.push_back(1);
+			test_gold.push_back(-1);
 		}
 		else	
 			img_pos_lst.push_back(img.clone());
@@ -101,7 +101,7 @@ int main(int argc, const char* argv[])
 		if(test_lst.size()<1084 && rand()%2 == 1)
 		{
 			test_lst.push_back(img.clone());
-			test_gold.push_back(0);
+			test_gold.push_back(1);
 		}
 		else
 			img_neg_list.push_back(img.clone());
@@ -312,9 +312,11 @@ int main(int argc, const char* argv[])
 		//HOG detection function
 		
 		//hogd.detectMultiScale(testImg, found, found_weights, 0, Size(32,32), Size(0, 0), 1.15, 3, 0);
-		
-		/*hogTest.compute(testImg, descriptors, Size(0, 0), Size(0, 0));
-		cout<<descriptors.size()<<endl;*/
+		vector<Point> found_locations;
+		hogTest.compute(test_lst[i], descriptors, Size(0, 0), Size(0, 0));
+		cout<<"compute"<<endl;
+		float a = svm->predict(descriptors);
+		//cout<<descriptors.size()<<endl;
 		/*Mat image = get_hogdescriptor_visual_image(background,descriptors,hog.winSize,hog.cellSize,3, 2.5);
 		imshow("hog of test image",image);
 		waitKey(HOW_LONG);*/
@@ -331,11 +333,12 @@ int main(int argc, const char* argv[])
 	*/
 		//cout<<found.size()<<endl;
 		
-		vector<Point> found_locations;
+		//cout<<a<<endl;
 		
-		hogTest.detect(test_lst[i], found_locations, 0);
+		//hogTest.detect(test_lst[i], found_locations, 0);
 		//cout<<found_locations.size()<<endl;
-		test.push_back(found_locations.size());
+		test.push_back(a);
+		descriptors.clear();
 		//cout<<"image: "<<i<<" found: "<<test[i]<<endl;
 		//cout <<"Test image no "<<i<<endl;
 		/*
