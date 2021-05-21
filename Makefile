@@ -1,6 +1,6 @@
 all: hog
 hog: hog.cpp
-	g++ hog.cpp -o hog `pkg-config --cflags --libs opencv`
+	g++ -g -O3 hog.cpp -o hog `pkg-config --cflags --libs opencv`
 
 .PHONY: clean
 clean:
