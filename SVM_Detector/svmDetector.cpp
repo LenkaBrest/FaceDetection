@@ -32,7 +32,7 @@ int main(int argc, const char** argv)
 #pragma region Initialization
 
 	Ptr<ml::SVM> svm = ml::SVM::create();
-	svm = svm->load<ml::SVM>(svmPath);
+	svm = svm->load(svmPath); 
 
 	if (!svm->isTrained())
 	{
@@ -40,9 +40,9 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 
-	VideoCapture capture; 
+	//VideoCapture capture; 
 	Mat inputImage;
-	if (camActivation)
+	/*if (camActivation)
 	{
 		capture = VideoCapture(0);
 		if (!capture.isOpened())
@@ -51,7 +51,7 @@ int main(int argc, const char** argv)
 			return -1;
 		}
 	}
-	else {
+	else {*/
 		if (imagePath == "")
 		{
 			printf("There is no positivePath\n");
@@ -64,13 +64,13 @@ int main(int argc, const char** argv)
 			printf("This is no image: %s\n", imagePath);
 			return -1;
 		}
-	}
+	//}
 
 #pragma endregion
 
 #pragma region Function Decesion
 
-	if (camActivation)
+	/*if (camActivation)
 	{
 		int result = webcamDetection(&capture, svm);
 		if (result != 0)
@@ -78,12 +78,12 @@ int main(int argc, const char** argv)
 		return 0;
 	}
 	else
-	{
+	{*/
 		int result = imageDetection(&inputImage, svm);
 		if (result != 0)
 			return -1;
 		return 0;
-	}
+	//}
 
 #pragma endregion
 }
@@ -104,7 +104,7 @@ int imageDetection(Mat* inputImage, Ptr<ml::SVM> svm)
 
 #pragma endregion
 }
-
+/*
 int webcamDetection(VideoCapture* capture, Ptr<ml::SVM> svm)
 {
 #pragma region Detect in Webcam stream
@@ -123,13 +123,13 @@ int webcamDetection(VideoCapture* capture, Ptr<ml::SVM> svm)
 
 #pragma endregion
 }
-
+*/
 Mat faceDetection(Mat* inputImage, Ptr<ml::SVM> svm)
 {
 #pragma region Initialization
 
 	Mat greyImage;
-	cvtColor(*inputImage, greyImage, CV_BGR2GRAY);
+	cvtColor(*inputImage, greyImage, cv::COLOR_BGR2GRAY);
 
 	// Vector that saves the Point in whicht the match was and the preditcion value and the scale factor
 	std::vector<std::pair<Point, Vec2f> > positivePatches;

@@ -77,7 +77,7 @@ bool testSVM(String* positiveTestPath, String* negativTestPath, String* svmPath)
 	int testCount = 0;
 
 	Ptr<ml::SVM> svm = ml::SVM::create();
-	svm = svm->load<ml::SVM>(*svmPath);
+	svm = svm->load(*svmPath);
 	if (!svm->isTrained())
 	{
 		printf("The SVM isn't trained through this path: %s\n", *svmPath);
@@ -108,7 +108,7 @@ bool testSVM(String* positiveTestPath, String* negativTestPath, String* svmPath)
 			printf("Couldn't read the image %s\n", *fileName);
 			return false;
 		}
-		cvtColor(actualImage, actualImage, CV_BGR2GRAY);
+		cvtColor(actualImage, actualImage, cv::COLOR_BGR2GRAY);
 		resize(actualImage, actualImage, Size(WINDOW_SIZE, WINDOW_SIZE));
 
 		// Calculating the HOG

@@ -87,14 +87,13 @@ bool trainSVM(String* positiveTrainPath, String* negativeTrainPath)
 	for (std::vector<String>::iterator fileName = positiveFileNames.begin(); fileName != positiveFileNames.end(); ++fileName)
 	{
 		Mat actualImage = imread(*fileName);
-
 		// Testing if the file is an image
 		if (actualImage.empty())
 		{
 			printf("Couldn't read the image %s\n", *fileName);
 			return false;
 		}
-		cvtColor(actualImage, actualImage, CV_BGR2GRAY);
+		cvtColor(actualImage, actualImage, cv::COLOR_BGR2GRAY);
 		resize(actualImage, actualImage, Size(WINDOW_SIZE, WINDOW_SIZE));
 
 		// Calculating the HOG
@@ -106,24 +105,55 @@ bool trainSVM(String* positiveTrainPath, String* negativeTrainPath)
 		trainingCount++;
 	}
 	std::cout << " Finished (" << (clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
+	//std::cout<<trainingCount<<std::endl;
 
 #pragma endregion
 
 #pragma region Negative HOG Descriptors
 
-	// Calculating the HOG of the negativ images
+	// Converting the positve images and calculating the HOG
 	std::cout << "Calculate negative HOG Descriptors (" << (clock() - beginTime) / (float)CLOCKS_PER_SEC << ") ...";
 	for (std::vector<String>::iterator fileName = negativeFileNames.begin(); fileName != negativeFileNames.end(); ++fileName)
 	{
 		Mat actualImage = imread(*fileName);
-
 		// Testing if the file is an image
 		if (actualImage.empty())
 		{
 			printf("Couldn't read the image %s\n", *fileName);
 			return false;
 		}
-		cvtColor(actualImage, actualImage, CV_BGR2GRAY);
+		cvtColor(actualImage, actualImage, cv::COLOR_BGR2GRAY);
+		resize(actualImage, actualImage, Size(WINDOW_SIZE, WINDOW_SIZE));
+
+		// Calculating the HOG
+		hogD.compute(actualImage, descriptorsValues, Size(0, 0), Size(0, 0), locations);
+
+		Mat descriptorsVector = Mat_<float>(descriptorsValues, true);
+		descriptorsVector.col(0).copyTo(trainingData.col(trainingCount));
+		trainingLabel.at<int>(0, trainingCount) = 1;
+		trainingCount++;
+	}
+	std::cout << " Finished (" << (clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
+	//std::cout<<trainingCount<<std::endl;
+
+#pragma endregion
+/*
+#pragma region Negative HOG Descriptors
+
+	// Calculating the HOG of the negativ images
+	std::cout<<"Neg HOG"<<std::endl;
+	std::cout << "Calculate negative HOG Descriptors ("<<std::endl; //<< (clock() - beginTime) / (float)CLOCKS_PER_SEC << ") ...";
+	for (std::vector<String>::iterator fileName = negativeFileNames.begin(); fileName != negativeFileNames.end(); ++fileName)
+	{
+		Mat actualImage = imread(*fileName);
+		//std::cout<<*fileName<<std::endl;
+		// Testing if the file is an image
+		if (actualImage.empty())
+		{
+			printf("Couldn't read the image %s\n", *fileName);
+			return false;
+		}
+		cvtColor(actualImage, actualImage, cv::COLOR_BGR2GRAY);
 
 		// Choose the random windows and theire size
 		for (int c = 0; c < RANDOM_PATCH_COUNT; c++)
@@ -143,27 +173,34 @@ bool trainSVM(String* positiveTrainPath, String* negativeTrainPath)
 			descriptorsVector.col(0).copyTo(trainingData.col(trainingCount));
 			trainingLabel.at<int>(0, trainingCount) = -1;
 			trainingCount++;
+			//std::cout<<trainingCount<<std::endl;
 		}
 	}
-	std::cout << " Finished (" << (clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
+	std::cout<<trainingCount<<std::endl;
+	std::cout << " Finished (" (clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
 
 #pragma endregion
-
+*/
 #pragma region SVM Training
 
 	// Set up SVM's parameters
+	std::cout<<"Start training region"<<std::endl;
 	Ptr<ml::SVM> svm = ml::SVM::create();
+	std::cout<<"SVM created"<<std::endl;
 	svm->setType(ml::SVM::C_SVC);
+	std::cout<<"Set type"<<std::endl;
 	svm->setKernel(ml::SVM::LINEAR);
-	svm->setTermCriteria(cvTermCriteria(CV_TERMCRIT_ITER, SVM_ITERATIONS, 1e-6));
+	std::cout<<"set kernel"<<std::endl;
+	svm->setTermCriteria(TermCriteria(cv::TermCriteria::MAX_ITER, SVM_ITERATIONS, 1e-6));
+	std::cout<<"set term criteria"<<std::endl;
 	// Create the Trainingdata
 	Ptr<ml::TrainData> tData = ml::TrainData::create(trainingData, ml::SampleTypes::COL_SAMPLE, trainingLabel);
-
-	std::cout << "Start SVM training (" << (clock() - beginTime) / (float)CLOCKS_PER_SEC << ") ...";
+	
+	std::cout << "Start SVM training (" <<std::endl; //<< (clock() - beginTime) / (float)CLOCKS_PER_SEC << ") ...";
 	svm->train(tData);
-	std::cout << " Finished (" << (clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
+	std::cout << " Finished (" << std::endl; //(clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
 
-	svm->save(SVM_OUTPUT_NAME);
+	svm->save("svm_output.xml");
 
 #pragma endregion
 
