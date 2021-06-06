@@ -25,7 +25,7 @@ int main(int argc, const char** argv)
 
 	String svmPath = parser.get<String>("svm");
 	String imagePath = parser.get<String>("img");
-	bool camActivation = parser.has("cam");
+	//bool camActivation = parser.has("cam");
 
 #pragma endregion
 
@@ -163,9 +163,11 @@ Mat faceDetection(Mat* inputImage, Ptr<ml::SVM> svm)
 				hogD.compute(imagePatch, descriptorsValues, Size(0, 0), Size(0, 0), locations);
 				// Predict with the SVM
 				float rawPrediction = svm->predict(descriptorsValues, noArray(), ml::StatModel::RAW_OUTPUT);
+				std::cout<<"noArray size: "<<noArray<<std::endl;
+				std::cout<<"predict: "<<rawPrediction<<std::endl;
 #pragma omp critical
 				{
-					if (rawPrediction < 0)
+					if (rawPrediction < (float)-3.5)
 						positivePatches.push_back(std::pair<Point, Vec2f>(Point(cX, cY), Vec2f(rawPrediction, scaleFactor)));
 				}
 			}

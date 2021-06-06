@@ -67,8 +67,8 @@ bool trainSVM(String* positiveTrainPath, String* negativeTrainPath)
 		return false;
 	}
 
-	Mat trainingLabel = Mat_<int>(1, positiveFileNames.size() + negativeFileNames.size() * RANDOM_PATCH_COUNT);
-	Mat trainingData = Mat_<float>(DESCRIPTOR_SIZE, positiveFileNames.size() + negativeFileNames.size() * RANDOM_PATCH_COUNT);
+	Mat trainingLabel = Mat_<int>(1, positiveFileNames.size() + negativeFileNames.size());
+	Mat trainingData = Mat_<float>(DESCRIPTOR_SIZE, positiveFileNames.size() + negativeFileNames.size());
 	int trainingCount = 0;
 
 	HOGDescriptor hogD;
@@ -98,7 +98,7 @@ bool trainSVM(String* positiveTrainPath, String* negativeTrainPath)
 
 		// Calculating the HOG
 		hogD.compute(actualImage, descriptorsValues, Size(0, 0), Size(0, 0), locations);
-
+		//std::cout<<locations.size()<<std::endl;
 		Mat descriptorsVector = Mat_<float>(descriptorsValues, true);
 		descriptorsVector.col(0).copyTo(trainingData.col(trainingCount));
 		trainingLabel.at<int>(0, trainingCount) = 1;
@@ -127,15 +127,16 @@ bool trainSVM(String* positiveTrainPath, String* negativeTrainPath)
 
 		// Calculating the HOG
 		hogD.compute(actualImage, descriptorsValues, Size(0, 0), Size(0, 0), locations);
-
+		//std::cout<<locations.size()<<std::endl;
 		Mat descriptorsVector = Mat_<float>(descriptorsValues, true);
 		descriptorsVector.col(0).copyTo(trainingData.col(trainingCount));
-		trainingLabel.at<int>(0, trainingCount) = 1;
+		trainingLabel.at<int>(0, trainingCount) = -1;
 		trainingCount++;
 	}
 	std::cout << " Finished (" << (clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
 	//std::cout<<trainingCount<<std::endl;
-
+	std::cout<<"descriptor: "<<descriptorsValues.size()<<std::endl;
+std::cout<<"trian data after positive: "<<trainingData.size()<<std::endl;
 #pragma endregion
 /*
 #pragma region Negative HOG Descriptors
@@ -195,7 +196,7 @@ bool trainSVM(String* positiveTrainPath, String* negativeTrainPath)
 	std::cout<<"set term criteria"<<std::endl;
 	// Create the Trainingdata
 	Ptr<ml::TrainData> tData = ml::TrainData::create(trainingData, ml::SampleTypes::COL_SAMPLE, trainingLabel);
-	
+	std::cout<<trainingData.size()<<std::endl;
 	std::cout << "Start SVM training (" <<std::endl; //<< (clock() - beginTime) / (float)CLOCKS_PER_SEC << ") ...";
 	svm->train(tData);
 	std::cout << " Finished (" << std::endl; //(clock() - beginTime) / (float)CLOCKS_PER_SEC << ")" << std::endl;
